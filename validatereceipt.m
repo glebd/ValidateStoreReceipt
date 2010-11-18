@@ -33,8 +33,9 @@ NSString *kReceiptVersion = @"Version";
 NSString *kReceiptOpaqueValue = @"OpaqueValue";
 NSString *kReceiptHash = @"Hash";
 
+NSData * appleRootCert(void);
 
-NSData * appleRootCert()
+NSData * appleRootCert(void)
 {
 	OSStatus status;
 	
@@ -140,7 +141,7 @@ NSDictionary * dictionaryWithAppStoreReceipt(NSString * path)
 	BIO *payload = BIO_new(BIO_s_mem());
 	X509_STORE *store = X509_STORE_new();
 	
-	unsigned char *data = (unsigned char *)(rootCertData.bytes);
+	unsigned char const *data = (unsigned char const *)(rootCertData.bytes);
 	X509 *appleCA = d2i_X509(NULL, &data, rootCertData.length);
 	
 	X509_STORE_add_cert(store, appleCA);
@@ -171,8 +172,8 @@ NSDictionary * dictionaryWithAppStoreReceipt(NSString * path)
 	}
 	
     ASN1_OCTET_STRING *octets = p7->d.sign->contents->d.data;   
-    unsigned char *p = octets->data;
-    unsigned char *end = p + octets->length;
+    unsigned char const *p = octets->data;
+    unsigned char const *end = p + octets->length;
     
     int type = 0;
     int xclass = 0;
@@ -220,7 +221,7 @@ NSDictionary * dictionaryWithAppStoreReceipt(NSString * path)
                 
                 // Bytes
                 if (attr_type == BUNDLE_ID || attr_type == OPAQUE_VALUE || attr_type == HASH) {
-                    NSData *data = [NSData dataWithBytes:p length:length];
+                    NSData *dataBytes = [NSData dataWithBytes:p length:length];
                     
                     switch (attr_type) {
                         case BUNDLE_ID:
@@ -235,14 +236,14 @@ NSDictionary * dictionaryWithAppStoreReceipt(NSString * path)
                             break;
                     }
                     
-                    [info setObject:data forKey:key];
+                    [info setObject:dataBytes forKey:key];
                 }
                 
                 // Strings
                 if (attr_type == BUNDLE_ID || attr_type == VERSION) {
                     int str_type = 0;
                     long str_length = 0;
-                    unsigned char *str_p = p;
+                    unsigned char const *str_p = p;
                     ASN1_get_object(&str_p, &str_length, &str_type, &xclass, seq_end - str_p);
                     if (str_type == V_ASN1_UTF8STRING) {
                         NSString *string = [[[NSString alloc] initWithBytes:str_p
