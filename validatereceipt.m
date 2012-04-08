@@ -419,7 +419,7 @@ BOOL validateReceiptAtPath(NSString * path)
 
 	NSData * guidData = nil;
 #ifndef USE_SAMPLE_RECEIPT
-	guidData = (__bridge NSData*)copy_mac_address();
+	guidData = (__bridge_transfer NSData *)copy_mac_address();
     if (!guidData)
 		return NO;
 #else
