@@ -125,9 +125,7 @@ NSData * appleRootCert(void)
 
 		if (itemRef)
 			VRCFRelease(itemRef);
-
-		[name release];
-	}
+    }
 
 	VRCFRelease(searchList);
 	VRCFRelease(searchRef);
@@ -313,8 +311,7 @@ NSDictionary * dictionaryWithAppStoreReceipt(NSString * path)
 																		length:(NSUInteger)str_length
                                                                       encoding:NSUTF8StringEncoding];
                             [info setObject:string forKey:key];
-                            [string release];
-						}
+                        }
 					}
 				}
 			}
@@ -422,14 +419,8 @@ BOOL validateReceiptAtPath(NSString * path)
 
 	NSData * guidData = nil;
 #ifndef USE_SAMPLE_RECEIPT
-	guidData = (NSData*)copy_mac_address();
-
-	if ([NSGarbageCollector defaultCollector])
-		[[NSGarbageCollector defaultCollector] enableCollectorForPointer:guidData];
-	else
-		[guidData autorelease];
-
-	if (!guidData)
+	guidData = (__bridge NSData*)copy_mac_address();
+    if (!guidData)
 		return NO;
 #else
 	// Overwrite with example GUID for use with example receipt
